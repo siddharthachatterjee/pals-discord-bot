@@ -3,5 +3,6 @@
 ## How to run:
 - Download this repo
 - Download [Node.js](https://nodejs.org/en/download/)
-- run npm init
-- run node app.js 
+- Navigate to the folder on your computer
+- run npm init in terminal
+- run node app.js in terminal
