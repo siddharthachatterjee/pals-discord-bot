@@ -1,5 +1,7 @@
 # super-pals-kfp-bot
 
 ## How to run:
-- Download 
-- run node app.js
+- Download this repo
+- Downloade Node.js
+- run npm init
+- run node app.js 
