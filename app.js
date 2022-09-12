@@ -16,7 +16,7 @@ client.on("ready", () => {
 
     client.channels.fetch("968358452839731264").then(channel => {
         setInterval(() => {
-            let release = new Date(2024, 4, 8);
+            let release = new Date(2024, 2, 8);
             let current = new Date();
             let days = Math.ceil((release - current)/(1000));
             channel.send(days + " seconds till Kung Fu Panda 4");
