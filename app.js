@@ -1,5 +1,22 @@
-const {Client, GatewayIntentBits, MessageEmbed, quote} = require("discord.js");
-const {kfpQuotes} = require("./quotes");
+import {Client, GatewayIntentBits} from "discord.js";
+import {GoogleGenerativeAI} from "@google/generative-ai"
+import "dotenv/config";
+import {writeFile, readFile} from "fs/promises"
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"})
+
+let dataObj = {};
+
+const fetchData = async () => {
+    try {
+        const data = await readFile("data.txt", {encoding:"utf-8"});
+        dataObj = JSON.parse(data);
+    }
+    catch (err) {
+        console.error(err)
+    }
+}
 
 
 const client = new Client({
@@ -11,33 +28,40 @@ const client = new Client({
     ]
 });
 
-//console.log(new Date());
 client.on("ready", () => {
-
-    client.channels.fetch("968358452839731264").then(channel => {
-        setInterval(() => {
-            let release = new Date(2024, 2, 8);
-            let current = new Date();
-            let days = Math.ceil((release - current)/(1000));
-            channel.send(days + " seconds till Kung Fu Panda 4");
-        }, 1000 * 3600 * 24);
+    client.channels.fetch(process.env.CHANNEL_ID).then(channel => {
+        const {lastDate} = dataObj 
+        let date = new Date(dataObj.date);
+        let current = new Date();
+        let diff = Math.floor((current - date)/(1000 * 60 * 60 * 24)) +  1;
+        if (diff > lastDate) {
+            channel.send("Sid has ghosted for " + diff + " days");
+        }
+        dataObj.lastDate = diff
+        writeFile("data.txt", JSON.stringify(dataObj))
     })
 })
 
-
 client.on("messageCreate", message => {
- //   console.log(message);
-    if (message.content ==="!kfp4") {
-        let release = new Date(2024, 3, 8);
-        let current = new Date();
-        let days = Math.ceil((release - current)/(1000));
-        message.reply("Hey, " + message.author.username + ", " + days + " seconds till Kung Fu Panda 4");
+    try {
+        if (message.mentions && message.mentions.users.first().bot) {
+            (async () => {
+                let prompt = "Pretend you are Bronny James and answer: " + message.content
+                const result = await model.generateContent(prompt)
+                const text = await result.response
+                message.reply(text.text())
+            })()
+        }
     }
-    else if (message.content === "!kfp-quote") {
-        let i = Math.floor(Math.random() * kfpQuotes.length);
-      //  console.log(i);
-        message.reply(kfpQuotes[i]);
+    catch(err) {
+        
     }
+
 })
-console.log(kfpQuotes.length)
-client.login("MTAxNjEwODUyODgxNTA0Njc5Ng.G8xb-S.SuxbBnC_9x6Mr7QkrXZffBwseiIhxQuTtzwbGU");
+
+const run = () => {
+    fetchData()
+    client.login(process.env.DISCORD_API_KEY);
+}
+
+run();

@@ -1,1 +1,4 @@
 node_modules/
+.env
+quotes.js
+data.txt
