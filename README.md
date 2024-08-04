@@ -1,4 +1,4 @@
-# super-pals-kfp-bot
+Bronny Bot
 
 ## How to run:
 - Download this repo
