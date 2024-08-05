@@ -41,20 +41,33 @@ client.on("ready", () => {
         writeFile("data.txt", JSON.stringify(dataObj))
     })
 })
-
+let history = []
 client.on("messageCreate", message => {
     try {
         if (message.mentions && message.mentions.users.first().bot) {
             (async () => {
-                let prompt = "Pretend you are Bronny James and answer: " + message.content
-                const result = await model.generateContent(prompt)
-                const text = await result.response
-                message.reply(text.text())
+                try {
+                 //   console.log(message.type)
+                    if (message.type != 19)
+                        history = [];
+                    history.push(message.content);
+                    console.log(history)
+                    let prompt = "Pretend you are Bronny James and answer the last string in the array using the previous strings in the array for context if necessary: "  + history
+                    if (message.author.username.includes("yash"))
+                        prompt += ", be sure to be very mad in this response direct at Yash"
+                    const result = await model.generateContent(prompt)
+                    const text = await result.response
+                    message.reply(text.text())
+                    history.push(text.text())
+                }
+                catch (err) {
+                    message.reply(err)
+                }
             })()
         }
     }
     catch(err) {
-        
+
     }
 
 })
